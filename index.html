@@ -1,1 +1,824 @@
-# codesprint-privacy
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSprint - Focus Timer & AI Study Coach</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: #0e1626;
+            --bg-card: rgba(18, 27, 46, 0.7);
+            --border-color: rgba(56, 189, 248, 0.15);
+            --border-hover: rgba(56, 189, 248, 0.4);
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(9, 13, 22, 0) 70%);
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navbar */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            font-family: var(--font-mono);
+        }
+
+        .company-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(56, 189, 248, 0.45);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent-primary);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 1rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        /* Ecosystem Matrix / Platforms Strip */
+        .ecosystem {
+            padding: 30px 0 60px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 80px;
+        }
+
+        .ecosystem-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-family: var(--font-mono);
+        }
+
+        .platforms-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.25rem;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .platform-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .platform-badge:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .platform-badge i {
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+        }
+
+        /* Interactive App Preview Showcase */
+        .preview-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .preview-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .preview-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .preview-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .preview-tab.active, .preview-tab:hover {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .preview-body {
+            padding: 3rem 2rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Pomodoro Widget inside preview */
+        .timer-display {
+            font-family: var(--font-mono);
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin: 1rem 0;
+            letter-spacing: 2px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Privacy Section */
+        .privacy {
+            padding: 80px 0;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .privacy-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .privacy-content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .privacy-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .privacy-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .privacy-list li i {
+            color: #10b981;
+            margin-top: 4px;
+        }
+
+        .privacy-visual {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+        }
+
+        .privacy-visual .code-line {
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* CTA Footer Section */
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .cta-box p {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media(max-width: 968px) {
+            .privacy-box {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: var(--bg-secondary);
+                padding: 2rem;
+                border-bottom: 1px solid var(--border-color);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <!-- Header / Navbar -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <div class="company-logo"><i class="fa-solid fa-code"></i></div> CodeSprint
+                </a>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#ecosystem">Platforms</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#privacy">Privacy</a></li>
+                    <li><a href="#preview">Live Demo</a></li>
+                    <li><a href="#" class="btn btn-primary"><i class="fa-solid fa-download"></i> Get Extension</a></li>
+                </ul>
+                <button class="mobile-menu-btn" id="menuBtn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="badge">
+                <i class="fa-solid fa-bolt"></i> npm v1.0.0 & Browser Extension Live
+            </div>
+            <h1>Transform Your Workflow with <span>CodeSprint</span></h1>
+            <p>An AI-powered study companion and precision Pomodoro productivity engine available across your favorite IDEs, editors, browsers, and MCP servers.</p>
+            <div class="hero-cta">
+                <a href="#" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Install Chrome Extension</a>
+                <a href="#ecosystem" class="btn btn-outline"><i class="fa-solid fa-layer-group"></i> View All Ecosystems</a>
+            </div>
+
+            <!-- Ecosystem Platform Badges Matrix -->
+            <div class="ecosystem" id="ecosystem">
+                <div class="ecosystem-title">Available Everywhere You Code & Study</div>
+                <div class="platforms-grid">
+                    <div class="platform-badge"><i class="fa-solid fa-store"></i> VS Code Marketplace</div>
+                    <div class="platform-badge"><i class="fa-solid fa-plug"></i> JetBrains & Android Studio</div>
+                    <div class="platform-badge"><i class="fa-solid fa-globe"></i> Open VSX Registry</div>
+                    <div class="platform-badge"><i class="fa-solid fa-code-branch"></i> VSCodium</div>
+                    <div class="platform-badge"><i class="fa-solid fa-terminal"></i> Zed IDE Registry</div>
+                    <div class="platform-badge"><i class="fa-solid fa-server"></i> MCP Server</div>
+                    <div class="platform-badge"><i class="fa-brands fa-npm"></i> npm v1.0.0</div>
+                    <div class="platform-badge"><i class="fa-brands fa-chrome"></i> Chrome Extension</div>
+                </div>
+            </div>
+
+            <!-- Interactive Preview Component -->
+            <div class="preview-container" id="preview">
+                <div class="preview-header">
+                    <div class="preview-dots">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                    </div>
+                    <div class="preview-tabs">
+                        <button class="preview-tab active" onclick="switchTab(event, 'timerTab')">Pomodoro Timer</button>
+                        <button class="preview-tab" onclick="switchTab(event, 'aiTab')">AI Coach</button>
+                        <button class="preview-tab" onclick="switchTab(event, 'roadmapTab')">Roadmaps</button>
+                    </div>
+                </div>
+                <div class="preview-body">
+                    <!-- Timer Tab -->
+                    <div id="timerTab" class="tab-content active">
+                        <span style="color: var(--accent-primary); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Deep Work Session</span>
+                        <div class="timer-display" id="timerDisplay">25:00</div>
+                        <div class="timer-controls">
+                            <button class="btn btn-primary" onclick="toggleTimer()" id="timerBtn"><i class="fa-solid fa-play" id="playIcon"></i> Start Focus</button>
+                            <button class="btn btn-outline" onclick="resetTimer()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                        </div>
+                    </div>
+                    <!-- AI Tab -->
+                    <div id="aiTab" class="tab-content">
+                        <div style="max-width: 600px; margin: 0 auto; text-align: left; background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem;">
+                                <i class="fa-solid fa-robot" style="color: var(--accent-primary); font-size: 1.25rem;"></i>
+                                <span style="font-weight: 600; font-size: 0.95rem;">CodeSprint AI Coach</span>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">"Can you explain how React useEffect cleanup functions work with an example?"</p>
+                            <div style="background: rgba(56, 189, 248, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--accent-primary); font-size: 0.85rem; color: var(--text-main);">
+                                Cleanup functions run before the component unmounts or before re-running the effect. Essential for clearing timers or unsubscribing from WebSockets to prevent memory leaks!
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Roadmap Tab -->
+                    <div id="roadmapTab" class="tab-content">
+                        <div style="max-width: 600px; margin: 0 auto; text-align: left; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.1rem;"></i>
+                                <span style="font-size: 0.9rem; font-weight: 600;">Phase 1: Advanced Data Structures & Algorithms</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--accent-primary);">
+                                <i class="fa-solid fa-spinner fa-spin" style="color: var(--accent-primary); font-size: 1.1rem;"></i>
+                                <span style="font-size: 0.9rem; font-weight: 600;">Phase 2: System Design & Scalability (In Progress)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); opacity: 0.6;">
+                                <i class="fa-regular fa-circle" style="color: var(--text-muted); font-size: 1.1rem;"></i>
+                                <span style="font-size: 0.9rem; font-weight: 600;">Phase 3: Full-Stack MERN Architecture</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Engineered for High Performance</h2>
+                <p>Everything you need to master your academics and coding workflow across multiple editors.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
+                    <h3>Advanced Pomodoro Timer</h3>
+                    <p>Customizable work and break intervals designed to maximize deep focus states and prevent mental burnout during rigorous study sprints.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+                    <h3>AI Study Coach & Guidance</h3>
+                    <p>Receive instant conceptual explanations, debugging hints, and tailored study itineraries right inside your active development environment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-route"></i></div>
+                    <h3>Structured Learning Roadmaps</h3>
+                    <p>Keep your academic progress and technical skill-building on track with organized milestones and visual study roadmaps.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                    <h3>Zero Friction Installation</h3>
+                    <p>Install via npm v1.0.0, Chrome Extension, or your favorite IDE registry instantly with no account creation or passwords required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>100% Local Data Storage</h3>
+                    <p>Your study statistics, custom goals, and session history are stored securely and locally on your device. Your data never leaves your browser.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-server"></i></div>
+                    <h3>MCP Server Ready</h3>
+                    <p>Connect seamlessly with Model Context Protocol servers to integrate productivity metrics and AI assistant workflows effortlessly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy Section -->
+    <section class="privacy" id="privacy">
+        <div class="container">
+            <div class="privacy-box">
+                <div class="privacy-content">
+                    <h2>Privacy & Safety First Architecture</h2>
+                    <ul class="privacy-list">
+                        <li><i class="fa-solid fa-check"></i> <span><strong>No Cloud Tracking or Sync:</strong> All preferences and productivity logs remain local to your browser or extension storage.</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span><strong>Zero Third-Party Cookies:</strong> We do not track your browsing habits, sell user metrics, or serve ads.</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span><strong>Secure & Lightweight:</strong> Built with efficient modern web standards for zero impact on system memory.</span></li>
+                    </ul>
+                </div>
+                <div class="privacy-visual">
+                    <div class="code-line">// LocalStorage Security Check</div>
+                    <div class="code-line">const userStats = localStorage.getItem('codesprint_stats');</div>
+                    <div class="code-line">if (cloudSyncEnabled === false) {</div>
+                    <div class="code-line">&nbsp;&nbsp;console.log("Data stays 100% on device.");</div>
+                    <div class="code-line">}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box">
+                <h2>Elevate Your Study Routine Today</h2>
+                <p>Join students and developers building better habits with a fast, private, and intelligent productivity companion available everywhere.</p>
+                <a href="#" class="btn btn-primary"><i class="fa-solid fa-download"></i> Install CodeSprint - Free</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 CodeSprint. All rights reserved. Built with privacy, npm v1.0.0, and focus in mind.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = menuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-xmark');
+        });
+
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            const tabs = document.querySelectorAll('.preview-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        let timerInterval;
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+
+        function toggleTimer() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerBtn = document.getElementById('timerBtn');
+            const playIcon = document.getElementById('playIcon');
+
+            if (!isRunning) {
+                isRunning = true;
+                playIcon.className = "fa-solid fa-pause";
+                timerBtn.innerHTML = '<i class="fa-solid fa-pause" id="playIcon"></i> Pause Focus';
+                
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        let minutes = Math.floor(timeLeft / 60);
+                        let seconds = timeLeft % 60;
+                        timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    } else {
+                        clearInterval(timerInterval);
+                        alert("Focus session complete! Take a well-deserved break.");
+                        resetTimer();
+                    }
+                }, 1000);
+            } else {
+                isRunning = false;
+                clearInterval(timerInterval);
+                timerBtn.innerHTML = '<i class="fa-solid fa-play" id="playIcon"></i> Resume Focus';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = 25 * 60;
+            document.getElementById('timerDisplay').textContent = "25:00";
+            document.getElementById('timerBtn').innerHTML = '<i class="fa-solid fa-play" id="playIcon"></i> Start Focus';
+        }
+    </script>
+</body>
+  </html>
